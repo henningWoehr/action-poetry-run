@@ -1,0 +1,39 @@
+name: "Run pytest with poetry"
+description: "Sets up Python, Poetry, and then runs tests via 'poetry run pytest'. Outputs the current project version of the pyproject.toml"
+
+inputs:
+  run-command: 
+    description: "Command to run via 'poetry run'"
+    required: true
+  poetry-version:
+    description: "Version of poetry to install"
+    required: false
+    default: "1.1.14"
+  python-version:
+    description: "Version of python to install"
+    required: false
+    default: "3.10"
+
+outputs:
+  project-version:
+    description: Current project version of pyproject.toml
+    value: ${{ steps.setup-poetry.outputs.project-version }}
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup poetry
+      id: setup-poetry
+      uses: henningwoehr/action-poetry-setup@v1
+      with:
+        python-version: ${{ inputs.python-version }}
+        poetry-version: ${{ inputs.poetry-version }}
+        install-dependencies: true
+
+    - name: Run poetry command
+      run: poetry run ${{ inputs.run-command }}
+      shell: bash
